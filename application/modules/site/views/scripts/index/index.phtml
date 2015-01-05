@@ -1,1 +1,49 @@
-Hola mundo!!
+<div class="row">
+    <div class="col-md-12">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label for="foto" class="col-sm-3 control-label">Foto</label>
+                <div class="col-sm-6">
+                    <?php echo $this->formFile("foto", array("class"=>"form-control", "data-url"=> $this->url(array("action"=>"ajax-upload")))) ?>
+                </div>
+            </div>
+            <!-- The global progress bar -->
+            <div id="progress" class="progress">
+                <div class="progress-bar progress-bar-success"></div>
+            </div>
+            <!-- The container for the uploaded files -->
+            <div id="files" class="files"></div>
+        </form>
+    </div>
+</div>
+
+<?php
+$basePath = $this->baseUrl();
+$this->headLink()->appendStylesheet($basePath . '/assets/vendor/JqueryFileUpload/css/jquery.fileupload.css');
+$this->headScript()->appendFile($basePath . '/assets/vendor/JqueryFileUpload/js/vendor/jquery.ui.widget.js')
+                   ->appendFile($basePath . '/assets/vendor/JqueryFileUpload/js/jquery.iframe-transport.js')
+                   ->appendFile($basePath . '/assets/vendor/JqueryFileUpload/js/jquery.fileupload.js');
+$this->headScript()->captureStart();
+?>
+$(function () {
+    $('#foto').fileupload({
+        dataType: 'json',
+        done: function (e, data) {
+            $.each(data.result.foto, function (index, file) {
+                // $('<p/>').text(file.name).appendTo('#files');
+                $('<img/>').attr("src", file.thumbnailUrl).appendTo("#files");
+            });
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress .progress-bar').css(
+                'width',
+                progress + '%'
+            );
+        }
+    }).prop('disabled', !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+});
+<?php
+$this->headScript()->captureEnd();
+?>
